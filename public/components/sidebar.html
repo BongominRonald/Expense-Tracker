@@ -1,0 +1,121 @@
+<!-- Universal Gmail-Style Sidebar -->
+<!-- Mobile Toggle Button -->
+<button class="mobile-toggle" id="mobileToggle" aria-controls="sidebar" aria-expanded="false">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar" id="sidebar" aria-hidden="true">
+    <div class="sidebar-header">
+        <a href="../../index.html" class="sidebar-brand">
+            <i class="fas fa-wallet"></i> <span>SFM</span>
+        </a>
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="../dashboard/dashboard.html"><span><i class="fas fa-tachometer-alt"></i> Dashboard</span></a></li>
+        <li>
+            <a href="#" class="dropdown-toggle" id="fw-toggle" aria-expanded="false" aria-controls="fw-submenu" role="button">
+                <span><i class="fas fa-route"></i> Financial Workflow</span>
+                <i class="fas fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+            </a>
+            <ul class="sidebar-submenu" id="fw-submenu" aria-hidden="true" role="menu">
+                <li><a href="../workflow/goals.html"><span><i class="fas fa-bullseye"></i> 1. Set Goals</span></a></li>
+                <li><a href="../workflow/budget.html"><span><i class="fas fa-calculator"></i> 2. Create Budget</span></a></li>
+                <li><a href="../workflow/expenditure.html"><span><i class="fas fa-shopping-cart"></i> 3. Track Expenses</span></a></li>
+            </ul>
+        </li>
+        <li><a href="../reports/reports.html"><span><i class="fas fa-chart-bar"></i> Reports</span></a></li>
+        <li><a href="../reports/activity.html"><span><i class="fas fa-history"></i> Activity History</span></a></li>
+        <li><a href="../sms/sms-parser.html"><span><i class="fas fa-sms"></i> SMS Parser</span></a></li>
+    </ul>
+</aside>
+
+<!-- Sidebar Overlay -->
+<div id="sidebarOverlay" style="display:none; position:fixed; inset:0; background: rgba(0,0,0,0.35); z-index: 999;"></div>
+
+<!-- Universal Gmail-Style Navigation Styles -->
+<style>
+    /* Gmail-style sidebar */
+    .sidebar { 
+        transform: translateX(-100%); 
+        z-index: 1002; 
+        transition: transform 0.3s ease;
+        background: #ffffff;
+        border-right: 1px solid #e9ecef;
+    }
+    .sidebar.show { 
+        transform: translateX(0); 
+    }
+    
+    /* Mobile toggle - clean white design */
+    .mobile-toggle { 
+        position: fixed; 
+        top: 1rem; 
+        left: 1rem; 
+        z-index: 1001; 
+        background: #ffffff; 
+        color: #333; 
+        border: 1px solid #e9ecef; 
+        width: 48px; 
+        height: 48px; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-size: 1.2rem; 
+        display: inline-flex !important; 
+        align-items: center; 
+        justify-content: center; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-toggle:hover {
+        background: #f8f9fa;
+        transform: scale(1.05);
+    }
+    
+    /* Main content adjustment */
+    .main-content { 
+        margin-left: 0 !important; 
+    }
+    
+    /* Page header spacing for mobile toggle */
+    .page-header { 
+        padding-left: calc(2rem + 64px); 
+    }
+    
+    @media (max-width: 768px) { 
+        .page-header { 
+            padding-left: calc(1.25rem + 64px); 
+        } 
+    }
+    
+    .page-header h1,
+    .page-header p { 
+        text-align: center; 
+    }
+    
+    /* Sidebar submenu visibility */
+    .sidebar-submenu { 
+        display: none; 
+    }
+    .sidebar-submenu.show { 
+        display: block; 
+    }
+    
+    /* Dropdown arrow animation */
+    .sidebar .dropdown-toggle { 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        gap: .5rem; 
+    }
+    .sidebar .dropdown-toggle .dropdown-arrow { 
+        transition: transform .2s ease; 
+    }
+    .sidebar .dropdown-toggle[aria-expanded="true"] .dropdown-arrow { 
+        transform: rotate(180deg); 
+    }
+</style>

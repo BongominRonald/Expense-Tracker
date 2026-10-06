@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to Student Finance Manager - Manage your finances">
+    <meta name="keywords" content="student finance, login, budget tracker">
+    <title>Login - Student Finance Manager</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../public/assets/css/style.css">
+    <link rel="stylesheet" href="../../public/assets/css/enhanced.css">
+    <link rel="stylesheet" href="../../public/assets/css/universal-layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Clean white header */
+        .auth-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .navbar-brand:hover {
+            color: #28a745;
+        }
+        
+        .auth-buttons .btn {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) { .topbar .inner { padding: .6rem .75rem; } }
+
+        /* Responsive auth layout overrides */
+        .auth-container { display: flex; min-height: calc(100vh - 180px); }
+        #authLeft { flex: 0 0 40%; min-width: 220px; max-width: 70%; }
+        #authResizer { width: 6px; cursor: col-resize; background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.12)); border-left: 1px solid rgba(0,0,0,0.06); border-right: 1px solid rgba(0,0,0,0.06); }
+        .auth-right { flex: 1 1 auto; }
+        .auth-form-container { max-width: 520px; width: 100%; margin: 0 auto; }
+        @media (max-width: 900px) {
+          .auth-container { flex-direction: column; }
+          #authLeft { flex: 0 0 auto; width: 100% !important; max-width: 100% !important; min-width: 0; padding: 1.25rem; }
+          #authResizer { display: none !important; }
+          .auth-right { width: 100%; padding: 1rem; }
+          .auth-form-container { max-width: 100%; padding: 0 .25rem; }
+        }
+        @media (max-width: 768px) {
+          .auth-header { padding: 0.8rem 0; }
+          .auth-buttons { flex-direction: column; gap: 0.5rem; }
+          .auth-buttons .btn { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+          .auth-form-container h2 { font-size: 1.5rem; }
+          .auth-subtitle { font-size: 0.9rem; }
+          .auth-left { padding: 1rem; }
+          .auth-features { display: none; }
+        }
+        @media (max-width: 576px) {
+          .auth-header { padding: 0.6rem 0; }
+          .navbar-brand { font-size: 1.1rem; }
+          .auth-buttons .btn { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+          .auth-form-container h2 { font-size: 1.3rem; }
+          .auth-subtitle { font-size: 0.85rem; }
+          .auth-left { padding: 0.8rem; }
+          .auth-branding h1 { font-size: 1.5rem; }
+          .auth-branding p { font-size: 0.9rem; }
+        }
+        /* Remove space between page content and footer on login page */
+        .auth-page .site-footer { margin-top: 0; }
+    </style>
+</head>
+<body class="auth-page">
+    <!-- Navigation -->
+    <header class="auth-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <a href="../../index.html" class="navbar-brand d-flex align-items-center">
+                        <i class="fas fa-wallet me-2"></i> Student Finance Manager
+                    </a>
+                </div>
+                <div class="auth-buttons d-flex gap-2">
+                    <a href="register.html" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i> Register
+                    </a>
+                    <a href="../../index.html" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-2"></i> Home
+                    </a>
+                    <a href="#" id="resetPasswordBtn" class="btn btn-outline-warning">
+                        <i class="fas fa-key me-2"></i> Reset Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="auth-container" style="display: flex;">
+        <!-- Left Side (Adjustable Sidebar) -->
+        <div class="auth-left" id="authLeft" style="flex: 0 0 40%; min-width: 220px; max-width: 70%;">
+            <div class="auth-branding">
+                <i class="fas fa-wallet" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h1>Student Finance Manager</h1>
+                <p>Take control of your financial future</p>
+            </div>
+            <div class="auth-features">
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Track Expenses</h3>
+                    <p>Monitor your spending in real-time</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-piggy-bank"></i>
+                    <h3>Save Money</h3>
+                    <p>Set budgets and achieve your goals</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Visual Reports</h3>
+                    <p>Understand your finances with charts</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drag Handle -->
+        <div id="authResizer" title="Drag to resize" style="width: 6px; cursor: col-resize; background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.12)); border-left: 1px solid rgba(0,0,0,0.06); border-right: 1px solid rgba(0,0,0,0.06);"></div>
+
+        <!-- Right Side - Form -->
+        <div class="auth-right" style="flex: 1 1 auto;">
+            <div class="auth-form-container">
+                <h2>Welcome Back</h2>
+                <p class="auth-subtitle">Login to manage your finances</p>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        <input type="email" id="email" class="form-control" required 
+                               placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <div style="position:relative;">
+                            <input type="password" id="password" class="form-control" required 
+                                   placeholder="Enter your password" style="padding-right:42px;">
+                            <button type="button" id="togglePassword" aria-label="Show password" 
+                                    style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--gray); font-size:1rem; cursor:pointer;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="capsHint" style="display:none; font-size:.85rem; color: var(--warning); margin-top:.25rem;">Caps Lock is ON</div>
+                    </div>
+
+                    
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Register here</a></p>
+                    <p><a href="../../index.html">← Back to Home</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-0 text-muted">© 2024 Student Finance Manager. Made with <i class="fas fa-heart text-danger"></i> for students</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="../../index.html#features" class="text-muted me-3">Features</a>
+                    <a href="register.html" class="text-muted me-3">Register</a>
+                    <a href="../../index.html" class="text-muted">Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../public/assets/js/config.js"></script>
+    <script src="../../public/assets/js/main.js"></script>
+    <script src="../../public/assets/js/app-utils.js"></script>
+    <script src="../../controllers/auth.js"></script>
+    <script>
+        // Set authentication state on successful login
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if login was successful (this would be set by the auth controller)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userData', JSON.stringify({
+                    name: 'Student',
+                    email: 'student@example.com'
+                }));
+                window.location.href = '../dashboard/dashboard.html';
+            }
+            
+            // Handle reset password
+            const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+            if (resetPasswordBtn) {
+                resetPasswordBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const email = prompt('Enter your email address to reset password:');
+                    if (email) {
+                        alert('Password reset instructions have been sent to ' + email);
+                        // In a real application, this would send an email
+                        console.log('Password reset requested for:', email);
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        // Adjustable sidebar: drag to resize and remember width
+        (function() {
+            const left = document.getElementById('authLeft');
+            const resizer = document.getElementById('authResizer');
+            if (!left || !resizer) return;
+
+            // Disable resizer on narrow screens
+            function resizerEnabled() { return (window.innerWidth || document.documentElement.clientWidth) >= 900; }
+            function applyResponsiveResizer() {
+                if (!resizerEnabled()) {
+                    try { resizer.style.display = 'none'; } catch(_) {}
+                    try { left.style.flexBasis = 'auto'; } catch(_) {}
+                } else {
+                    try { resizer.style.display = ''; } catch(_) {}
+                }
+            }
+            applyResponsiveResizer();
+            window.addEventListener('resize', applyResponsiveResizer);
+
+            // Restore saved width
+            const saved = localStorage.getItem('auth_left_width');
+            if (saved) {
+                left.style.flexBasis = saved;
+            }
+
+            let startX = 0;
+            let startWidth = 0;
+            const minPx = 220; // min width
+            function startDrag(clientX) {
+                startX = clientX;
+                startWidth = left.getBoundingClientRect().width;
+                document.body.style.cursor = 'col-resize';
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp, { once: true });
+            }
+            function onMouseMove(e) { onMoveImpl(e.clientX); }
+            function onMouseUp() { endDrag(); }
+            function onTouchMove(e) { if (e.touches && e.touches[0]) onMoveImpl(e.touches[0].clientX); }
+            function onTouchEnd() { endDrag(); }
+            function onMoveImpl(clientX) {
+                if (!resizerEnabled()) return;
+                const dx = clientX - startX;
+                const newWidth = Math.max(minPx, startWidth + dx);
+                const container = document.querySelector('.auth-container');
+                const containerWidth = container.getBoundingClientRect().width;
+                const maxWidth = containerWidth * 0.7; // cap at 70%
+                const clamped = Math.min(newWidth, maxWidth);
+                left.style.flexBasis = clamped + 'px';
+            }
+            function endDrag() {
+                document.body.style.cursor = '';
+                document.removeEventListener('mousemove', onMouseMove);
+                // Persist as px to avoid layout jumps across pages
+                const finalWidth = left.getBoundingClientRect().width;
+                localStorage.setItem('auth_left_width', finalWidth + 'px');
+            }
+
+            resizer.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (!resizerEnabled()) return;
+                startDrag(e.clientX);
+            });
+            resizer.addEventListener('touchstart', (e) => {
+                if (!resizerEnabled()) return;
+                if (e.touches && e.touches[0]) {
+                    startDrag(e.touches[0].clientX);
+                    document.addEventListener('touchmove', onTouchMove, { passive: true });
+                    document.addEventListener('touchend', onTouchEnd, { once: true });
+                }
+            }, { passive: true });
+
+            // Double-click resizer to toggle collapse/restore
+            resizer.addEventListener('dblclick', () => {
+                const collapsed = left.getBoundingClientRect().width <= (minPx + 5);
+                if (collapsed) {
+                    const restore = localStorage.getItem('auth_left_width_restore') || '40%';
+                    left.style.flexBasis = restore;
+                    localStorage.setItem('auth_left_width', restore);
+                } else {
+                    localStorage.setItem('auth_left_width_restore', left.style.flexBasis || (left.getBoundingClientRect().width + 'px'));
+                    left.style.flexBasis = minPx + 'px';
+                    localStorage.setItem('auth_left_width', minPx + 'px');
+                }
+            });
+        })();
+        // Simple clean background - no animations for better performance
+        document.addEventListener('DOMContentLoaded', () => {
+            const pane = document.getElementById('authLeft');
+            if (pane) {
+                // Simple clean gradient background
+                pane.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const pwd = document.getElementById('password');
+                const btn = document.getElementById('togglePassword');
+                const icon = btn ? btn.querySelector('i') : null;
+                const caps = document.getElementById('capsHint');
+                if (btn && pwd) {
+                    btn.addEventListener('click', () => {
+                        const isText = pwd.getAttribute('type') === 'text';
+                        pwd.setAttribute('type', isText ? 'password' : 'text');
+                        if (icon) icon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+                        btn.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
+                    });
+                    pwd.addEventListener('keydown', (e) => {
+                        const on = e.getModifierState && e.getModifierState('CapsLock');
+                        if (caps) caps.style.display = on ? '' : 'none';
+                    });
+                    pwd.addEventListener('keyup', (e) => {
+                        const on = e.getModifierState && e.getModifierState('CapsLock');
+                        if (caps) caps.style.display = on ? '' : 'none';
+                    });
+                }
+            } catch(_) {}
+            
+        });
+    </script>
+</body>
+</html>

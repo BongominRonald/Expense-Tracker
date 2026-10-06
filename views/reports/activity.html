@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Activity History</title>
+  <link rel="stylesheet" href="../../public/assets/css/style.css" />
+  <link rel="stylesheet" href="../../public/assets/css/enhanced.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Ensure API_BASE and core utilities are available before controllers -->
+  <script defer src="../../public/assets/js/config.js"></script>
+  <script defer src="../../public/assets/js/main.js"></script>
+  <script defer src="../../public/assets/js/app-utils.js"></script>
+  <script defer src="../../controllers/auth.js"></script>
+  <script defer src="../../controllers/activity.js"></script>
+  <style>
+    /* Scoped Activity History styles */
+    .ah * { box-sizing: border-box; }
+    .ah header {
+      background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #6366f1 100%);
+      border: 1px solid rgba(255,255,255,.25);
+    }
+    .ah .card { border: 1px solid #eef2f7; }
+    .ah .form-control { width: 100%; padding: .55rem .65rem; border: 1px solid #e5e7eb; border-radius: 10px; }
+    .ah .form-control:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+    .ah .btn { cursor: pointer; border-radius: 10px; padding: .55rem .8rem; border: 1px solid transparent; }
+    .ah .btn-primary { background: #3b82f6; color: #fff; }
+    .ah .btn-primary:hover { background: #2563eb; }
+    .ah .btn-secondary { background: #eef2ff; color: #3730a3; border-color: #e0e7ff; }
+    .ah .btn-secondary:hover { background: #e0e7ff; }
+    .ah .btn-danger { background: #ef4444; color: #fff; }
+    .ah .btn-danger:hover { background: #dc2626; }
+    .ah .btn-link { background: transparent; color: #2563eb; border: none; text-decoration: underline; }
+    .ah .btn-link:hover { color: #1d4ed8; }
+    .ah table.ah-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .ah table.ah-table thead th { position: sticky; top: 0; z-index: 1; background: #f9fafb; }
+    .ah table.ah-table tbody tr:nth-child(odd) { background: #fbfdff; }
+    .ah table.ah-table tbody tr:hover { background: #f3f6ff; }
+    .ah footer { color: #6b7280; }
+    /* Modal */
+    .ah .modal { display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(3px); }
+    .ah .modal .modal-card { background:#fff; width:min(920px, 92vw); max-height:80vh; border-radius:14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
+    .ah .modal .modal-head { display:flex; justify-content:space-between; align-items:center; padding:.85rem 1rem; border-bottom:1px solid #e5e7eb; }
+    .ah .modal .modal-body { padding:1rem; overflow:auto; }
+    .ah .pill { display:inline-block; padding:.2rem .55rem; border-radius:999px; background:#eef2ff; color:#3730a3; font-weight:600; font-size:.82rem; }
+    /* Hamburger visibility and positioning */
+    .mobile-toggle {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 10010;
+      background: #000;
+      color: #fff;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    /* Off-canvas sidebar behavior */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 280px;
+      transform: translateX(-100%);
+      transition: transform .2s ease;
+      z-index: 10005;
+      background: #111827;
+      color: #fff;
+      overflow-y: auto;
+    }
+    .sidebar.show { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+  </style>
+</head>
+<body>
+  <!-- Mobile Toggle Button -->
+  <button class="mobile-toggle" id="mobileToggle" aria-controls="sidebar" aria-expanded="false" onclick="(function(){try{var s=document.getElementById('sidebar');var o=document.getElementById('sidebarOverlay');var b=document.getElementById('mobileToggle');if(!s||!o||!b)return;var open=!s.classList.contains('show');if(open){s.classList.add('show');s.setAttribute('aria-hidden','false');o.style.display='block';document.body.style.overflow='hidden';b.setAttribute('aria-expanded','true');var firstLink=s.querySelector('a, button'); if(firstLink) firstLink.focus();}else{s.classList.remove('show');s.setAttribute('aria-hidden','true');o.style.display='none';document.body.style.overflow='';b.setAttribute('aria-expanded','false');b.focus();}}catch(_){}})(); return false;">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" id="sidebar" aria-hidden="true">
+    <div class="sidebar-header">
+      <a href="../dashboard/dashboard.html" class="sidebar-brand">
+        <i class="fas fa-wallet"></i> <span>SFM</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="../dashboard/dashboard.html"><span><i class="fas fa-tachometer-alt"></i> Dashboard</span></a></li>
+      <li>
+        <a href="#" class="dropdown-toggle" id="fw-toggle" aria-expanded="false" aria-controls="fw-submenu" role="button">
+          <span><i class="fas fa-route"></i> Financial Workflow</span>
+          <i class="fas fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
+        <ul class="sidebar-submenu" id="fw-submenu" aria-hidden="true" role="menu">
+          <li><a href="../workflow/goals.html"><span><i class="fas fa-bullseye"></i> 1. Set Goals</span></a></li>
+          <li><a href="../workflow/budget.html"><span><i class="fas fa-calculator"></i> 2. Create Budget</span></a></li>
+          <li><a href="../workflow/expenditure.html"><span><i class="fas fa-shopping-cart"></i> 3. Track Expenses</span></a></li>
+        </ul>
+      </li>
+      <li><a href="../reports/reports.html"><span><i class="fas fa-chart-bar"></i> Reports</span></a></li>
+      <li><a href="../reports/activity.html" class="active"><span><i class="fas fa-history"></i> Activity History</span></a></li>
+      <li><a href="../sms/sms-parser.html"><span><i class="fas fa-sms"></i> SMS Parser</span></a></li>
+      <li><a href="../profile/profile.html"><span><i class="fas fa-user"></i> Profile</span></a></li>
+      <li><a href="../settings/settings.html"><span><i class="fas fa-cog"></i> Settings</span></a></li>
+      <li><a href="#" id="logoutBtn"><span><i class="fas fa-sign-out-alt"></i> Logout</span></a></li>
+    </ul>
+  </aside>
+  <div id="sidebarOverlay" style="display:none; position:fixed; inset:0; background: rgba(0,0,0,0.35); z-index: 999;"></div>
+
+  <div class="main-content">
+  <div class="container ah" style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem;">
+    <!-- Modern Header -->
+    <header style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 14px; color: #fff; padding: 1.25rem 1rem; margin-bottom: 1rem; box-shadow: 0 8px 24px rgba(37,99,235,.2);">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap: wrap;">
+        <div style="display:flex; align-items:center; gap:.75rem;">
+          <i class="fas fa-history" style="font-size: 1.5rem;"></i>
+          <div>
+            <h1 style="margin:0; font-size:1.4rem; line-height:1.2;">Activity History</h1>
+            <div style="opacity:.85; font-size:.9rem;">View, filter, export, and manage your activity logs</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:.5rem;">
+          <button id="refreshBtn" class="btn btn-secondary" type="button" title="Refresh" style="background: rgba(255,255,255,.2); color:#fff; border:none;">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
+          <div style="display:flex; align-items:center; gap:.5rem; background: rgba(255,255,255,.12); padding:.35rem .5rem; border-radius: 10px;">
+          <label for="purgeDays" style="font-size:.85rem;">Purge older than</label>
+          <input id="purgeDays" type="number" min="30" max="3650" value="365" style="width:90px; padding:.45rem .5rem; border-radius:8px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.15); color:#fff;" />
+          <span style="font-size:.85rem;">days</span>
+          <button id="purgeBtn" class="btn btn-danger" type="button" title="Purge" style="background: #ef4444; border: none;">
+            <i class="fas fa-broom"></i> Purge
+          </button>
+        </div>
+        <div style="display:flex; align-items:center; gap:.5rem;">
+          <button id="printActivity" class="btn btn-secondary" type="button" title="Print" style="background: rgba(255,255,255,.2); color:#fff; border:none;">
+            <i class="fas fa-print"></i> Print
+          </button>
+          <button id="exportPdfActivity" class="btn btn-secondary" type="button" title="Export PDF" style="background: rgba(255,255,255,.2); color:#fff; border:none;">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="card" style="background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.06); padding:1rem; margin-bottom: 1rem;">
+      <form id="filters" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:.75rem; align-items:end;">
+        <div>
+          <label for="entity" style="display:block; font-weight:600; margin-bottom:.25rem;">Entity</label>
+          <select id="entity" class="form-control">
+            <option value="">All</option>
+            <option value="goal">Goal</option>
+            <option value="budget">Budget</option>
+            <option value="expenditure">Expenditure</option>
+          </select>
+        </div>
+        <div>
+          <label for="search" style="display:block; font-weight:600; margin-bottom:.25rem;">Search</label>
+          <input id="search" type="text" class="form-control" placeholder="action/details..." />
+        </div>
+        <div>
+          <label for="limit" style="display:block; font-weight:600; margin-bottom:.25rem;">Page size</label>
+          <select id="limit" class="form-control">
+            <option>25</option>
+            <option>50</option>
+            <option>100</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:.5rem;">
+          <button id="applyFilters" class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Apply</button>
+          <button id="clearFilters" class="btn btn-secondary" type="button" title="Clear"><i class="fas fa-eraser"></i> Clear</button>
+        </div>
+        <div style="justify-self:end">
+          <button id="exportCsv" class="btn btn-secondary" type="button"><i class="fas fa-file-csv"></i> Export CSV</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card" style="background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.06); padding:0; overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="ah-table" style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f9fafb; text-align:left;">
+              <th style="padding:.75rem; border-bottom:1px solid #e5e7eb;">Time</th>
+              <th style="padding:.75rem; border-bottom:1px solid #e5e7eb;">Entity</th>
+              <th style="padding:.75rem; border-bottom:1px solid #e5e7eb;">Action</th>
+              <th style="padding:.75rem; border-bottom:1px solid #e5e7eb;">Details</th>
+            </tr>
+          </thead>
+          <tbody id="activityRows">
+            <tr><td colspan="4" style="padding:1rem; text-align:center; color:#6b7280;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:.75rem 1rem; border-top:1px solid #e5e7eb;">
+        <div id="pageInfo" style="color:#6b7280; font-size:.9rem;">Page 1</div>
+        <div style="display:flex; gap:.5rem;">
+          <button id="prevPage" class="btn btn-secondary" type="button"><i class="fas fa-chevron-left"></i> Prev</button>
+          <button id="nextPage" class="btn btn-secondary" type="button">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3><i class="fas fa-wallet"></i> Student Finance Manager</h3>
+          <p>Your trusted companion for managing student finances effectively.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="../dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="../workflow/expenditure.html"><i class="fas fa-shopping-cart"></i> Expenditure</a></li>
+            <li><a href="../workflow/budget.html"><i class="fas fa-calculator"></i> Budget</a></li>
+            <li><a href="../workflow/goals.html"><i class="fas fa-bullseye"></i> Goals</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="../pages/faq.html"><i class="fas fa-question-circle"></i> FAQ</a></li>
+            <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+            <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i> Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>All rights are reserved for Group D Software Engineering MUST</p>
+        <p>Made with <i class="fas fa-heart" style="color: #ef4444;"></i> for students</p>
+      </div>
+    </footer>
+  </div> <!-- /.container -->
+  </div> <!-- /.main-content -->
+  <!-- Print-only area -->
+  <div id="activityPrintArea" style="display:none"></div>
+  <style>
+    @media print {
+      body * { visibility: hidden !important; }
+      #activityPrintArea, #activityPrintArea * { visibility: visible !important; }
+      #activityPrintArea { position: absolute; left: 0; top: 0; width: 100%; padding: 16px; }
+    }
+  </style>
+  <script>
+    try { document.getElementById('yearNow').textContent = new Date().getFullYear(); } catch(_) {}
+  </script>
+  <script>
+    // Initialize sidebar drawer like dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const STORAGE_KEY = 'sfm.sidebar.open';
+        const sidebar = document.getElementById('sidebar');
+        const mobileBtn = document.getElementById('mobileToggle');
+        const closeBtn = document.getElementById('sidebarToggle');
+        const overlay = document.getElementById('sidebarOverlay');
+        const setDrawer = (open) => {
+          if (!sidebar || !overlay) return;
+          if (open) {
+            sidebar.classList.add('show');
+            sidebar.classList.remove('collapsed');
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            try { localStorage.setItem(STORAGE_KEY, '1'); } catch(_) {}
+          } else {
+            sidebar.classList.remove('show');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+            try { localStorage.setItem(STORAGE_KEY, '0'); } catch(_) {}
+          }
+        };
+        if (mobileBtn) mobileBtn.addEventListener('click', () => setDrawer(!sidebar.classList.contains('show')));
+        if (closeBtn) closeBtn.addEventListener('click', () => setDrawer(false));
+        if (overlay) overlay.addEventListener('click', () => setDrawer(false));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setDrawer(false); });
+        // Submenu toggles
+        const submenuToggles = Array.from(document.querySelectorAll('.sidebar .dropdown-toggle'));
+        const closeAllSubmenus = (except) => {
+          document.querySelectorAll('.sidebar-submenu').forEach(ul => {
+            if (ul !== except) {
+              ul.classList.remove('show');
+              ul.setAttribute('aria-hidden', 'true');
+              const ctrl = document.querySelector(`[aria-controls="${ul.id}"]`);
+              if (ctrl) ctrl.setAttribute('aria-expanded', 'false');
+            }
+          });
+        };
+        submenuToggles.forEach(tg => {
+          tg.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const targetId = tg.getAttribute('aria-controls');
+            const menu = targetId ? document.getElementById(targetId) : tg.nextElementSibling;
+            if (!menu) return;
+            const willOpen = !menu.classList.contains('show');
+            if (willOpen) closeAllSubmenus(menu);
+            menu.classList.toggle('show', willOpen);
+            menu.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+            tg.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+          });
+        });
+        // Restore initial state
+        let initialOpen = false;
+        try { const saved = localStorage.getItem(STORAGE_KEY); if (saved === '1') initialOpen = true; else if (saved === '0') initialOpen = false; } catch(_) {}
+        setDrawer(initialOpen);
+        // Also ensure logout button is wired if auth.js ran before DOM was ready
+        try {
+          const l = document.getElementById('logoutBtn');
+          if (l && !l._boundLogout) {
+            l.addEventListener('click', async (e)=>{ e.preventDefault(); try { if (window.auth && window.auth.logout) { await window.auth.logout(); } } catch(_) {} });
+            l._boundLogout = true;
+          }
+        } catch(_){}
+      } catch(_) {}
+      // Scoped printing: render only filtered table and minimal header
+      try {
+        const printBtn = document.getElementById('printActivity');
+        const exportPdfBtn = document.getElementById('exportPdfActivity');
+        const doPrint = () => {
+          try {
+            const printArea = document.getElementById('activityPrintArea');
+            if (!printArea) return window.print();
+            // Compose header
+            const entity = document.getElementById('entity')?.value || '';
+            const search = document.getElementById('search')?.value || '';
+            const limit = document.getElementById('limit')?.value || '';
+            const title = `<h2 style="margin:0 0 8px 0;">Activity History</h2>`;
+            const meta = `<div style=\"margin-bottom:12px; font-size:12px; color:#374151;\">Filters: ${entity||'All'} ${search?(' | search: '+search):''} ${limit?(' | page size: '+limit):''}</div>`;
+            // Clone current table body rows
+            const table = document.querySelector('table.ah-table');
+            let tableHtml = '';
+            if (table) {
+              const headers = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent.trim());
+              const rows = Array.from(document.querySelectorAll('#activityRows tr'))
+                .map(tr => Array.from(tr.children).map(td => td.textContent));
+              const thead = `<thead><tr>${headers.map(h=>`<th style=\"text-align:left; padding:6px; border-bottom:1px solid #ddd;\">${h}</th>`).join('')}</tr></thead>`;
+              const tbody = `<tbody>${rows.map(r=>`<tr>${r.map(c=>`<td style=\"padding:6px; border-bottom:1px solid #f0f0f0;\">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+              tableHtml = `<table style=\"width:100%; border-collapse:collapse; font-size:12px;\">${thead}${tbody}</table>`;
+            }
+            printArea.innerHTML = title + meta + tableHtml;
+            const cleanup = () => { printArea.style.display = 'none'; printArea.innerHTML = ''; window.removeEventListener('afterprint', cleanup); };
+            window.addEventListener('afterprint', cleanup, { once: true });
+            printArea.style.display = 'block';
+            window.print();
+          } catch(_) { window.print(); }
+        };
+        if (printBtn) printBtn.addEventListener('click', doPrint);
+        if (exportPdfBtn) exportPdfBtn.addEventListener('click', doPrint);
+      } catch(_) {}
+    });
+  </script>
+  <script>
+    // Session guard: redirect to login if not authenticated
+    document.addEventListener('DOMContentLoaded', () => {
+      function guard() {
+        if (!window.AppUtils) return setTimeout(guard, 30);
+        try {
+          const { SessionManager } = window.AppUtils || {};
+          if (SessionManager) {
+            const sm = new SessionManager(30);
+            if (!sm.isLoggedIn()) {
+              window.location.href = '../auth/login.html';
+            }
+          }
+        } catch(_) {}
+      }
+      guard();
+    });
+  </script>
+  <!-- Details Modal -->
+  <div id="detailsModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div style="display:flex; align-items:center; gap:.5rem;">
+          <i class="fas fa-circle-info" style="color:#3b82f6;"></i>
+          <span style="font-weight:600;">Activity Details</span>
+          <span class="pill">JSON</span>
+        </div>
+        <button type="button" onclick="window.activityPage && window.activityPage.closeDetails()" class="btn btn-secondary"><i class="fas fa-times"></i> Close</button>
+      </div>
+      <div class="modal-body">
+        <pre style="white-space:pre-wrap; word-break:break-word; margin:0;"></pre>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

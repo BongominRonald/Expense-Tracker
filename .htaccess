@@ -1,0 +1,19 @@
+# Basic security hardening for Apache
+# Disable directory listing
+Options -Indexes
+
+# Deny access to sensitive files
+<FilesMatch "^(config\.php|\.env)$">
+    Require all denied
+</FilesMatch>
+
+# Prevent access to installer and debug files if any
+<FilesMatch "(import_database\.php|check_setup\.php|test\.php)">
+    Require all denied
+</FilesMatch>
+
+# Deny direct access to backend scripts if executed outside AJAX flow
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Example: block access to backend endpoints from GET unless session exists
+</IfModule>

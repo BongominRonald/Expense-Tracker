@@ -1,0 +1,80 @@
+<!-- Universal Authentication Header -->
+<header class="auth-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <a href="../../index.html" class="navbar-brand d-flex align-items-center">
+                    <i class="fas fa-wallet me-2"></i> Student Finance Manager
+                </a>
+            </div>
+            <div class="auth-buttons d-flex gap-2">
+                <a href="../auth/login.html" class="btn btn-outline-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                </a>
+                <a href="../auth/register.html" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i> Sign Up
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Universal User Header (for logged-in users) -->
+<header class="user-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <a href="../dashboard/dashboard.html" class="navbar-brand d-flex align-items-center">
+                    <i class="fas fa-wallet me-2"></i> Student Finance Manager
+                </a>
+            </div>
+            <div class="user-actions d-flex gap-2">
+                <a href="../profile/profile.html" class="btn btn-outline-primary">
+                    <i class="fas fa-user me-2"></i> Profile
+                </a>
+                <a href="#" id="logoutBtn" class="btn btn-outline-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    .auth-header, .user-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .navbar-brand:hover {
+        color: #2563eb;
+    }
+    
+    .auth-buttons .btn, .user-actions .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-buttons, .user-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .auth-buttons .btn, .user-actions .btn {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+</style>

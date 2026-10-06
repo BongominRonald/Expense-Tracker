@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FAQ - Student Finance Manager">
+    <title>FAQ - Student Finance Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../public/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-main">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="../../index.html">
+                <i class="fas fa-wallet me-2"></i> Student Finance Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="../../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../../index.html#features">Features</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero/Header -->
+    <section class="hero">
+        <div class="container text-center">
+            <h1 class="mb-2"><i class="fas fa-circle-question"></i> Frequently Asked Questions</h1>
+            <p class="mb-0">Find answers to common questions about using FinTracker</p>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q1h"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="true" aria-controls="q1">How do I create a budget?</button></h2>
+                <div id="q1" class="accordion-collapse collapse show" aria-labelledby="q1h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Go to the Budgets page and click "Add New Budget", then fill the form and save.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q2h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" aria-expanded="false" aria-controls="q2">How do I track expenditures?</button></h2>
+                <div id="q2" class="accordion-collapse collapse" aria-labelledby="q2h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Use the Expenditures page to add and manage your daily expenses.</div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q3h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" aria-expanded="false" aria-controls="q3">What is the difference between Goals and Budgets?</button></h2>
+                <div id="q3" class="accordion-collapse collapse" aria-labelledby="q3h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Goals are targets you want to achieve (e.g., save for tuition). Budgets are spending plans that allocate money to categories (e.g., food, transport) to help you stay on track.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q4h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4" aria-expanded="false" aria-controls="q4">Why do I see no data in Reports?</button></h2>
+                <div id="q4" class="accordion-collapse collapse" aria-labelledby="q4h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Pick a wider period (e.g., Last 30 Days), choose Type = All, and ensure you have added at least one Goal, Budget, or Expense. If filters are too strict, the app will show the closest available data.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q5h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5" aria-expanded="false" aria-controls="q5">Can I print or export my data?</button></h2>
+                <div id="q5" class="accordion-collapse collapse" aria-labelledby="q5h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Yes. On pages that support printing or export, use the provided buttons to print selected sections or export as CSV/PDF where available.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q6h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6" aria-expanded="false" aria-controls="q6">How do accessibility features work (dark mode, font size)?</button></h2>
+                <div id="q6" class="accordion-collapse collapse" aria-labelledby="q6h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Open Settings and adjust theme (light/dark), font size, and motion preferences. These preferences apply across the application.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q7h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q7" aria-expanded="false" aria-controls="q7">How do I link an expense to a budget?</button></h2>
+                <div id="q7" class="accordion-collapse collapse" aria-labelledby="q7h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">When adding an expense, select the related budget or category if available. This helps Reports group spending correctly.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q8h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q8" aria-expanded="false" aria-controls="q8">How do I reset my password?</button></h2>
+                <div id="q8" class="accordion-collapse collapse" aria-labelledby="q8h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Password reset is currently unavailable. Please contact support via the footer email or WhatsApp for assistance.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q9h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q9" aria-expanded="false" aria-controls="q9">Is my data private?</button></h2>
+                <div id="q9" class="accordion-collapse collapse" aria-labelledby="q9h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">We take privacy seriously. Review our Privacy Policy for details and manage your preferences in Settings.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="q10h"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q10" aria-expanded="false" aria-controls="q10">How can I contact support?</button></h2>
+                <div id="q10" class="accordion-collapse collapse" aria-labelledby="q10h" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Use the footer to reach us via WhatsApp, phone, or email. You can also visit the About page for more information.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-wallet"></i> Student Finance Manager</h3>
+                <p>Simple tools to help everyone plan, budget and track spending.</p>
+                <div class="footer-social" style="display:flex; gap:12px; font-size:1.2rem; margin-top:.5rem;">
+                    <a href="https://facebook.com/" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="https://x.com/" target="_blank" rel="noopener" title="X"><i class="fab fa-x-twitter"></i></a>
+                    <a href="https://t.me/" target="_blank" rel="noopener" title="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="https://wa.me/" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Explore</h3>
+                <ul>
+                    <li><a href="../../index.html#features"><i class="fas fa-star"></i> Features</a></li>
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="faq.html"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    <li><a href="privacy.html"><i class="fas fa-shield-alt"></i> Privacy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Get Started</h3>
+                <ul>
+                    <li><a href="../auth/register.html"><i class="fas fa-user-plus"></i> Create Account</a></li>
+                    <li><a href="../auth/login.html"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    <li><a href="terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom" style="text-align:center; margin-top: 1rem;">
+            <p>All rights are reserved for Group D Software Engineering MUST</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="../../public/assets/js/config.js"></script>
+    <script src="../../public/assets/js/main.js"></script>
+</body>
+</html>
+

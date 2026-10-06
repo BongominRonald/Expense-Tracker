@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Parser - Student Finance Manager</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../public/assets/css/style.css">
+    <link rel="stylesheet" href="../../public/assets/css/enhanced.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Off-canvas sidebar behavior for all viewports on the SMS Parser page */
+        .sidebar { transform: translateX(-100%); z-index: 1002; }
+        .sidebar.show { transform: translateX(0); }
+        /* Ensure main content spans full width when sidebar is hidden */
+        .main-content { margin-left: 0 !important; }
+        /* Always show hamburger button */
+        .mobile-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: #000000;
+            color: var(--white);
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        /* Ensure page header leaves space for the hamburger on the left and header icon on the right */
+        .page-header {
+            position: relative;
+            padding-left: 88px; /* space for hamburger */
+            padding-right: 88px; /* space for header icon */
+            /* increase min-height so the title and subtitle don't overlap */
+            min-height: 96px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .page-header { padding-left: 72px; padding-right: 72px; min-height: 56px; }
+        }
+
+        /* Slightly lift hamburger above header elements to avoid visual overlap */
+        .mobile-toggle { z-index: 10010; }
+
+        /* Center the H1 (icon + text) horizontally within the header line */
+        .page-header h1 {
+            position: absolute;
+            left: 50%;
+            top: 12px;
+            transform: translateX(-50%);
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            white-space: nowrap;
+        }
+        /* Place the subtitle a bit lower than the title so they don't overlap */
+        .page-header p {
+            margin: 0;
+            margin-top: 48px; /* pushes the subtitle below the absolutely positioned H1 */
+            text-align: center;
+            color: var(--muted, #6b7280);
+            font-size: 0.95rem;
+            line-height: 1.2;
+            max-width: 820px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (max-width: 480px) {
+            .page-header h1 { top: 10px; font-size: 1.1rem; }
+            .page-header { min-height: 84px; padding-left: 72px; padding-right: 72px; }
+            .page-header p { margin-top: 42px; font-size: 0.9rem; padding: 0 8px; }
+        }
+
+        /* Keep the header icon aligned to the right, vertically centered */
+        .page-header .header-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.6rem;
+        }
+        /* Sidebar submenu visibility (scoped) */
+        .sidebar-submenu { display: none; }
+        .sidebar-submenu.show { display: block; }
+        /* Dropdown arrow rotation */
+    .sidebar .dropdown-toggle { display: flex; align-items: center; justify-content: space-between; gap: .5rem; white-space: nowrap; }
+        .sidebar .dropdown-toggle .dropdown-arrow { transition: transform .2s ease; }
+        .sidebar .dropdown-toggle[aria-expanded="true"] .dropdown-arrow { transform: rotate(180deg); }
+    /* Ensure the dropdown arrow sits to the far right and doesn't overlap the label */
+    .sidebar .dropdown-toggle .dropdown-arrow { margin-left: 8px; flex: 0 0 auto; }
+    /* Truncate long submenu labels to avoid overlap */
+    .sidebar-submenu a span { display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+    </style>
+    <style>
+        .sp header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #6366f1 100%);
+            color: #fff; border-radius: 14px; padding: 1.25rem 88px 1.25rem 88px;
+            box-shadow: 0 8px 24px rgba(37,99,235,.2); margin: 1rem 1rem 0 1rem;
+            position: relative; /* avoid content under fixed buttons */
+        }
+        .sp .btn { border-radius: 10px; }
+        .sp .card { border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+        .sp .card-header { border-bottom: 1px solid #eef2f7; }
+        .sp .form-control { border-radius: 10px; }
+        .sp table tbody tr:nth-child(odd){ background:#fbfdff; }
+        .sp table tbody tr:hover{ background:#f3f6ff; }
+        @media (max-width: 768px) {
+            .sp header { padding-left: 72px; padding-right: 72px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" id="mobileToggle" aria-controls="sidebar" aria-expanded="false" onclick="(function(){try{var s=document.getElementById('sidebar');var o=document.getElementById('sidebarOverlay');var b=document.getElementById('mobileToggle');if(!s||!o||!b)return;var open=!s.classList.contains('show');if(open){s.classList.add('show');s.setAttribute('aria-hidden','false');o.style.display='block';document.body.style.overflow='hidden';b.style.display='none';b.setAttribute('aria-expanded','true');var firstLink=s.querySelector('a, button'); if(firstLink) firstLink.focus();}else{s.classList.remove('show');s.setAttribute('aria-hidden','true');o.style.display='none';document.body.style.overflow='';b.style.display='';b.setAttribute('aria-expanded','false');b.focus();}}catch(_){}})(); return false;">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar" aria-hidden="true">
+        <div class="sidebar-header">
+            <a href="../dashboard/dashboard.html" class="sidebar-brand">
+                <i class="fas fa-wallet"></i> <span>SFM</span>
+            </a>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="(function(){try{var s=document.getElementById('sidebar');var o=document.getElementById('sidebarOverlay');var b=document.getElementById('mobileToggle');if(s){s.classList.remove('show');s.setAttribute('aria-hidden','true');}if(o){o.style.display='none';}document.body.style.overflow='';if(b){b.style.display='';b.setAttribute('aria-expanded','false');b.focus();}}catch(_){}})(); return false;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="../dashboard/dashboard.html"><span><i class="fas fa-tachometer-alt"></i> Dashboard</span></a></li>
+            <li>
+                <a href="#" class="dropdown-toggle" id="fw-toggle" aria-expanded="false" aria-controls="fw-submenu" role="button">
+                    <span><i class="fas fa-route"></i> Financial Workflow</span>
+                    <i class="fas fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+                </a>
+                <ul class="sidebar-submenu" id="fw-submenu" aria-hidden="true" role="menu">
+                    <li><a href="../workflow/goals.html"><span><i class="fas fa-bullseye"></i> 1. Set Goals</span></a></li>
+                    <li><a href="../workflow/budget.html"><span><i class="fas fa-calculator"></i> 2. Create Budget</span></a></li>
+                    <li><a href="../workflow/expenditure.html"><span><i class="fas fa-shopping-cart"></i> 3. Track Expenses</span></a></li>
+                </ul>
+            </li>
+            <li><a href="../reports/reports.html"><span><i class="fas fa-chart-bar"></i> Reports</span></a></li>
+            <li><a href="../reports/activity.html"><span><i class="fas fa-history"></i> Activity History</span></a></li>
+            <li><a href="../sms/sms-parser.html" class="active"><span><i class="fas fa-sms"></i> SMS Parser</span></a></li>
+            <li><a href="../profile/profile.html"><span><i class="fas fa-user"></i> Profile</span></a></li>
+            <li><a href="../settings/settings.html"><span><i class="fas fa-cog"></i> Settings</span></a></li>
+            <li><a href="#" id="logoutBtn"><span><i class="fas fa-sign-out-alt"></i> Logout</span></a></li>
+        </ul>
+    </aside>
+    <div id="sidebarOverlay" style="display:none; position:fixed; inset:0; background: rgba(0,0,0,0.35); z-index: 999;" onclick="(function(){try{var s=document.getElementById('sidebar');var o=document.getElementById('sidebarOverlay');var b=document.getElementById('mobileToggle');if(s){s.classList.remove('show');s.setAttribute('aria-hidden','true');}if(o){o.style.display='none';}document.body.style.overflow='';if(b){b.style.display='';b.setAttribute('aria-expanded','false');b.focus();}}catch(_){}})(); return false;"></div>
+
+    <!-- Main Content -->
+    <div class="main-content sp">
+        <header>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:.75rem;">
+                    <i class="fas fa-sms" style="font-size:1.5rem;"></i>
+                    <div>
+                        <div style="font-size:1.3rem; font-weight:700; line-height:1;">SMS Parser</div>
+                        <div style="opacity:.9; font-size:.95rem;">Parse SMS notifications into structured transactions and save to your records</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:.5rem;">
+                    <a class="btn btn-secondary" href="../workflow/expenditure.html"><i class="fas fa-table"></i> View Expenditures</a>
+                </div>
+            </div>
+        </header>
+        
+
+        <div class="dashboard-container">
+            <!-- How It Works -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-info-circle"></i> How SMS Parser Works
+                        <span class="help-tooltip">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">Copy and paste SMS messages from your mobile money provider or bank, and we'll automatically extract the transaction details</span>
+                        </span>
+                    </h2>
+                </div>
+                <div style="padding: 2rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div style="text-align: center; padding: 1.5rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0.5rem;">Step 1</h3>
+                            <p>Copy SMS from your phone</p>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;">
+                                <i class="fas fa-paste"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0.5rem;">Step 2</h3>
+                            <p>Paste it in the box below</p>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0.5rem;">Step 3</h3>
+                            <p>We extract the details automatically</p>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 3rem; color: var(--info); margin-bottom: 1rem;">
+                                <i class="fas fa-save"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0.5rem;">Step 4</h3>
+                            <p>Review and save to your records</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS Input -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-comment-dots"></i> Paste Your SMS Here</h2>
+                </div>
+                <div style="padding: 2rem;">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i> Provider</label>
+                            <select id="smsProvider" class="form-control">
+                                <option value="">Select provider (optional)</option>
+                                <option value="MTN MoMo">MTN MoMo</option>
+                                <option value="Airtel Money">Airtel Money</option>
+                                <option value="Bank">Bank</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-id-badge"></i> Sender</label>
+                            <input id="smsSender" type="text" class="form-control" placeholder="e.g. MTNMoMo, AirtelMoney, BankName" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-mobile-alt"></i> SMS Message
+                            <span class="help-tooltip">
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-text">Paste transaction SMS from your mobile money provider or bank. We support multiple common formats.</span>
+                            </span>
+                        </label>
+                        <textarea id="smsInput" rows="6" class="form-control" placeholder="Paste SMS message here..."></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="parseSMS" type="button">
+                            <i class="fas fa-magic"></i> Parse SMS
+                        </button>
+                        <button class="btn btn-secondary" id="clearSMS" type="button">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parsed Results -->
+            <div class="card" id="parsedResults" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-check-circle"></i> Extracted Transaction Details</h2>
+                </div>
+                <div style="padding: 2rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-exchange-alt"></i> Transaction Type
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 600;" id="parsedType">-</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-money-bill-wave"></i> Amount
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--danger);" id="parsedAmount">-</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-user"></i> Recipient/Source
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 600;" id="parsedRecipient">-</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-wallet"></i> Balance
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);" id="parsedBalance">-</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Category</label>
+                        <select id="parsedCategory" class="form-control">
+                            <option value="">Select Category</option>
+                            <option value="Food">Food & Dining</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills & Utilities</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Education">Education</option>
+                            <option value="Health">Health</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-link"></i> Link to Budget (optional)</label>
+                        <select id="parsedBudget" class="form-control">
+                            <option value="">No budget linked</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-sticky-note"></i> Notes (Optional)</label>
+                        <textarea id="parsedNotes" rows="3" class="form-control" placeholder="Add any additional notes..."></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-success" id="saveTransaction" type="button">
+                            <i class="fas fa-save"></i> Save to Expenditure
+                        </button>
+                        <button class="btn btn-warning" id="editDetails" type="button">
+                            <i class="fas fa-edit"></i> Edit Details
+                        </button>
+                        <button class="btn btn-danger" id="discardTransaction" type="button">
+                            <i class="fas fa-times"></i> Discard
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supported Sources (generic) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-building"></i> Supported Sources</h2>
+                </div>
+                <div style="padding: 2rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                        <div style="text-align: center; padding: 1.5rem; border: 2px solid var(--light); border-radius: 10px;">
+                            <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem;">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <h3>Banks</h3>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Most formats supported</p>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem; border: 2px solid var(--light); border-radius: 10px;">
+                            <div style="font-size: 2.5rem; color: var(--info); margin-bottom: 0.5rem;">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h3>Mobile Money</h3>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Generic formats supported</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Parsed Transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-history"></i> Recently Parsed Transactions</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Recipient</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentParsed">
+                            <tr>
+                                <td colspan="6" class="text-center">No parsed transactions yet. Start by pasting an SMS above!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-wallet"></i> Student Finance Manager</h3>
+                    <p>Your trusted companion for managing student finances effectively.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="../dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="../workflow/expenditure.html"><i class="fas fa-shopping-cart"></i> Expenditure</a></li>
+                        <li><a href="../workflow/budget.html"><i class="fas fa-calculator"></i> Budget</a></li>
+                        <li><a href="../workflow/goals.html"><i class="fas fa-bullseye"></i> Goals</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="../pages/faq.html"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                        <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+                        <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>All rights are reserved for Group D Software Engineering MUST</p>
+                <p>Made with <i class="fas fa-heart" style="color: #ef4444;"></i> for students</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../../public/assets/js/config.js?v=20251021_02"></script>
+    <script src="../../public/assets/js/main.js?v=20251021_02"></script>
+    <script src="../../public/assets/js/app-utils.js?v=20251021_02"></script>
+    <script src="../../controllers/auth.js?v=20251021_02"></script>
+    <script src="../../controllers/sms.js?v=20251021_02"></script>
+    <script>
+        // Match dashboard drawer behavior with persistent state and ARIA submenu toggling
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const STORAGE_KEY = 'sfm.sidebar.open';
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileToggle');
+                const closeBtn = document.getElementById('sidebarToggle');
+                const overlay = document.getElementById('sidebarOverlay');
+
+                const setDrawer = (open) => {
+                    if (!sidebar || !overlay) return;
+                    if (open) {
+                        sidebar.classList.add('show');
+                        sidebar.classList.remove('collapsed');
+                        overlay.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                        if (mobileBtn) mobileBtn.style.display = 'none';
+                        try { localStorage.setItem(STORAGE_KEY, '1'); } catch(_) {}
+                    } else {
+                        sidebar.classList.remove('show');
+                        overlay.style.display = 'none';
+                        document.body.style.overflow = '';
+                        if (mobileBtn) mobileBtn.style.display = '';
+                        try { localStorage.setItem(STORAGE_KEY, '0'); } catch(_) {}
+                    }
+                };
+
+                // Attach listeners
+                if (mobileBtn) mobileBtn.addEventListener('click', () => setDrawer(!sidebar.classList.contains('show')));
+                if (closeBtn) closeBtn.addEventListener('click', () => setDrawer(false));
+                if (overlay) overlay.addEventListener('click', () => setDrawer(false));
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setDrawer(false); });
+
+                // Dropdown: toggle Finance submenu
+                const submenuToggles = Array.from(document.querySelectorAll('.sidebar .dropdown-toggle'));
+                const closeAllSubmenus = (except) => {
+                    document.querySelectorAll('.sidebar-submenu').forEach(ul => {
+                        if (ul !== except) {
+                            ul.classList.remove('show');
+                            ul.setAttribute('aria-hidden', 'true');
+                            const ctrl = document.querySelector(`[aria-controls="${ul.id}"]`);
+                            if (ctrl) ctrl.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                };
+                submenuToggles.forEach(tg => {
+                    tg.addEventListener('click', (ev) => {
+                        ev.preventDefault();
+                        const targetId = tg.getAttribute('aria-controls');
+                        const menu = targetId ? document.getElementById(targetId) : tg.nextElementSibling;
+                        if (!menu) return;
+                        const willOpen = !menu.classList.contains('show');
+                        if (willOpen) closeAllSubmenus(menu);
+                        menu.classList.toggle('show', willOpen);
+                        menu.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+                        tg.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+                    });
+                    tg.addEventListener('keydown', (ev) => {
+                        if (ev.key === 'Enter' || ev.key === ' ') {
+                            ev.preventDefault();
+                            tg.click();
+                        }
+                    });
+                });
+
+                // Restore previous drawer state; default OPEN if none saved
+                let initialOpen = true;
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved === '1') initialOpen = true; else if (saved === '0') initialOpen = false;
+                } catch(_) {}
+                setDrawer(initialOpen);
+            } catch(_) {}
+        });
+    </script>
+    <script>
+        // Session management - resilient like workflows
+        document.addEventListener('DOMContentLoaded', () => {
+            function start() {
+                if (!window.AppUtils) { setTimeout(start, 30); return; }
+                const { SessionManager } = window.AppUtils;
+                const sessionManager = new SessionManager(30);
+                if (!sessionManager.isLoggedIn()) {
+                    window.location.href = '../auth/login.html';
+                    return;
+                }
+            }
+            start();
+        });
+    </script>
+</body>
+</html>
+
